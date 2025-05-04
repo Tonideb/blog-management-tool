@@ -7,6 +7,10 @@ interface BlogPost {
   id: number;
   title: string;
   content: any[];
+  author: string;
+  cardColor: string;
+  coverImage: string | null;
+  category: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -24,6 +28,13 @@ export default function BlogDetail() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const editor = useCreateBlockNote();
 
+  // Form state
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+  const [category, setCategory] = useState("");
+  const [coverImage, setCoverImage] = useState("");
+  const [cardColor, setCardColor] = useState("#FF5733");
+
   useEffect(() => {
     const fetchBlogPost = async () => {
       try {
@@ -33,13 +44,19 @@ export default function BlogDetail() {
         }
 
         const res = await fetch(`${apiUrl}/posts/${id}`);
-
+        
         if (!res.ok) {
           throw new Error(`Failed to fetch blog post (HTTP ${res.status})`);
         }
 
         const data = await res.json();
         setPost(data);
+        // Initialize form fields
+        setTitle(data.title);
+        setAuthor(data.author);
+        setCategory(data.category);
+        setCoverImage(data.coverImage || "");
+        setCardColor(data.cardColor);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unknown error occurred");
       } finally {
@@ -78,13 +95,18 @@ export default function BlogDetail() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          title: post.title,
+          title: title,
           content: currentContent,
+          author: author,
+          category: category,
+          coverImage: coverImage || null,
+          cardColor: cardColor
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to update post (HTTP ${response.status})`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Failed to update post (HTTP ${response.status})`);
       }
 
       const updatedPost = await response.json();
@@ -103,7 +125,7 @@ export default function BlogDetail() {
   const handleDelete = async () => {
     if (!post) return;
 
-    if (!window.confirm("Are you sure you want to delete this post?")) {
+    if (!window.confirm("Are you sure you want to delete this post? This action cannot be undone.")) {
       return;
     }
 
@@ -153,15 +175,88 @@ export default function BlogDetail() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
-      <p className="text-gray-500 mb-8">
-        Published: {new Date(post.createdAt).toLocaleDateString()}
-      </p>
+      {/* Post Metadata Fields */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Title*</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full p-2 border rounded"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Author</label>
+            <input
+              type="text"
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <input
+              type="text"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full p-2 border rounded"
+            />
+          </div>
+        </div>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Cover Image URL</label>
+            <input
+              type="url"
+              value={coverImage}
+              onChange={(e) => setCoverImage(e.target.value)}
+              className="w-full p-2 border rounded"
+              placeholder="https://example.com/image.jpg"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Card Color</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={cardColor}
+                onChange={(e) => setCardColor(e.target.value)}
+                className="h-10 w-10 p-1 rounded border"
+              />
+              <input
+                type="text"
+                value={cardColor}
+                onChange={(e) => setCardColor(e.target.value)}
+                className="flex-1 p-2 border rounded"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <p className="text-sm text-gray-500">
+              Created: {new Date(post.createdAt).toLocaleDateString()}
+            </p>
+            <p className="text-sm text-gray-500">
+              Last Updated: {new Date(post.updatedAt).toLocaleDateString()}
+            </p>
+          </div>
+        </div>
+      </div>
 
+      {/* Content Editor */}
       <div className="prose max-w-none mb-8">
         <BlockNoteView editable={true} editor={editor} />
       </div>
 
+      {/* Action Buttons */}
       <div className="flex justify-end space-x-4">
         {saveSuccess && (
           <div className="text-green-500 mr-4">Post saved successfully!</div>
@@ -180,9 +275,9 @@ export default function BlogDetail() {
         </button>
         <button
           onClick={handleSave}
-          disabled={isSaving}
+          disabled={isSaving || !title}
           className={`px-4 py-2 rounded text-white ${
-            isSaving ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"
+            isSaving || !title ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"
           }`}
         >
           {isSaving ? "Saving..." : "Save Changes"}
