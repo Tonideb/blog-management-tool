@@ -6,7 +6,7 @@ import { useCreateBlockNote } from "@blocknote/react";
 import { useState } from "react";
 
 export default function Editor() {
-  const [blocks, setBlocks] = useState<Block[]>([]);
+  const [_blocks, setBlocks] = useState<Block[]>([]);
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [category, setCategory] = useState("");
