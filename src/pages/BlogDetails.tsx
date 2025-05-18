@@ -11,6 +11,8 @@ interface BlogPost {
   cardColor: string;
   coverImage: string | null;
   category: string;
+  category2: string | null;
+  category3: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -32,6 +34,8 @@ export default function BlogDetail() {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [category, setCategory] = useState("");
+  const [category2, setCategory2] = useState("");
+  const [category3, setCategory3] = useState("");
   const [coverImage, setCoverImage] = useState("");
   const [cardColor, setCardColor] = useState("#FF5733");
 
@@ -44,7 +48,7 @@ export default function BlogDetail() {
         }
 
         const res = await fetch(`${apiUrl}/posts/${id}`);
-        
+
         if (!res.ok) {
           throw new Error(`Failed to fetch blog post (HTTP ${res.status})`);
         }
@@ -55,6 +59,8 @@ export default function BlogDetail() {
         setTitle(data.title);
         setAuthor(data.author);
         setCategory(data.category);
+        setCategory2(data.category2 || "");
+        setCategory3(data.category3 || "");
         setCoverImage(data.coverImage || "");
         setCardColor(data.cardColor);
       } catch (err) {
@@ -99,14 +105,18 @@ export default function BlogDetail() {
           content: currentContent,
           author: author,
           category: category,
+          category2: category2 || null,
+          category3: category3 || null,
           coverImage: coverImage || null,
-          cardColor: cardColor
+          cardColor: cardColor,
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to update post (HTTP ${response.status})`);
+        throw new Error(
+          errorData.error || `Failed to update post (HTTP ${response.status})`
+        );
       }
 
       const updatedPost = await response.json();
@@ -125,7 +135,11 @@ export default function BlogDetail() {
   const handleDelete = async () => {
     if (!post) return;
 
-    if (!window.confirm("Are you sure you want to delete this post? This action cannot be undone.")) {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this post? This action cannot be undone."
+      )
+    ) {
       return;
     }
 
@@ -179,7 +193,9 @@ export default function BlogDetail() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Title*</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Title*
+            </label>
             <input
               type="text"
               value={title}
@@ -188,9 +204,11 @@ export default function BlogDetail() {
               required
             />
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Author</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Author
+            </label>
             <input
               type="text"
               value={author}
@@ -198,21 +216,53 @@ export default function BlogDetail() {
               className="w-full p-2 border rounded"
             />
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-            <input
-              type="text"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full p-2 border rounded"
-            />
+
+          {/* Categories Section */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Main Category*
+              </label>
+              <input
+                type="text"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                2nd Category
+              </label>
+              <input
+                type="text"
+                value={category2}
+                onChange={(e) => setCategory2(e.target.value)}
+                className="w-full p-2 border rounded"
+                placeholder="Optional"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                3rd Category
+              </label>
+              <input
+                type="text"
+                value={category3}
+                onChange={(e) => setCategory3(e.target.value)}
+                className="w-full p-2 border rounded"
+                placeholder="Optional"
+              />
+            </div>
           </div>
         </div>
-        
+
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Cover Image URL</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Cover Image URL
+            </label>
             <input
               type="url"
               value={coverImage}
@@ -221,9 +271,11 @@ export default function BlogDetail() {
               placeholder="https://example.com/image.jpg"
             />
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Card Color</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Card Color
+            </label>
             <div className="flex items-center gap-2">
               <input
                 type="color"
@@ -239,7 +291,7 @@ export default function BlogDetail() {
               />
             </div>
           </div>
-          
+
           <div>
             <p className="text-sm text-gray-500">
               Created: {new Date(post.createdAt).toLocaleDateString()}
@@ -275,9 +327,11 @@ export default function BlogDetail() {
         </button>
         <button
           onClick={handleSave}
-          disabled={isSaving || !title}
+          disabled={isSaving || !title || !category}
           className={`px-4 py-2 rounded text-white ${
-            isSaving || !title ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"
+            isSaving || !title || !category
+              ? "bg-gray-400"
+              : "bg-blue-500 hover:bg-blue-600"
           }`}
         >
           {isSaving ? "Saving..." : "Save Changes"}

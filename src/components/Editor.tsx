@@ -10,8 +10,10 @@ export default function Editor() {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [category, setCategory] = useState("");
+  const [category2, setCategory2] = useState("");
+  const [category3, setCategory3] = useState("");
   const [coverImage, setCoverImage] = useState("");
-  const [cardColor, setCardColor] = useState("#FF5733"); // Default color
+  const [cardColor, setCardColor] = useState("#FF5733");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const editor = useCreateBlockNote();
 
@@ -35,6 +37,8 @@ export default function Editor() {
           content: content,
           author: author || "Anonymous",
           category: category || "Uncategorized",
+          category2: category2 || "Uncategorized",
+          category3: category3 || "Uncategorized",
           coverImage: coverImage || null,
           cardColor: cardColor || "#FF5733",
         }),
@@ -52,6 +56,8 @@ export default function Editor() {
       setTitle("");
       setAuthor("");
       setCategory("");
+      setCategory2("");
+      setCategory3("");
       setCoverImage("");
       setCardColor("#FF5733");
       editor.replaceBlocks(editor.document, []);
@@ -73,73 +79,110 @@ export default function Editor() {
     <div className="flex flex-col items-center min-h-screen p-4">
       <div className="wrapper w-full p-12">
         <div className="editor-container space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Title*</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Author</label>
-            <input
-              type="text"
-              value={author}
-              onChange={(e) => setAuthor(e.target.value)}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-            <input
-              type="text"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-        </div>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Cover Image URL</label>
-            <input
-              type="url"
-              value={coverImage}
-              onChange={(e) => setCoverImage(e.target.value)}
-              className="w-full p-2 border rounded"
-              placeholder="https://example.com/image.jpg"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Card Color</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={cardColor}
-                onChange={(e) => setCardColor(e.target.value)}
-                className="h-10 w-10 p-1 rounded border"
-              />
-              <input
-                type="text"
-                value={cardColor}
-                onChange={(e) => setCardColor(e.target.value)}
-                className="flex-1 p-2 border rounded"
-              />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Title*
+                </label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Author
+                </label>
+                <input
+                  type="text"
+                  value={author}
+                  onChange={(e) => setAuthor(e.target.value)}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+
+              {/* Categories Section */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Main Category*
+                  </label>
+                  <input
+                    type="text"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    required
+                    placeholder="Primary category"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    2nd Category
+                  </label>
+                  <input
+                    type="text"
+                    value={category2}
+                    onChange={(e) => setCategory2(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    placeholder="Optional"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    3rd Category
+                  </label>
+                  <input
+                    type="text"
+                    value={category3}
+                    onChange={(e) => setCategory3(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    placeholder="Optional"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Cover Image URL
+                </label>
+                <input
+                  type="url"
+                  value={coverImage}
+                  onChange={(e) => setCoverImage(e.target.value)}
+                  className="w-full p-2 border rounded"
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Card Color
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={cardColor}
+                    onChange={(e) => setCardColor(e.target.value)}
+                    className="h-10 w-10 p-1 rounded border"
+                  />
+                  <input
+                    type="text"
+                    value={cardColor}
+                    onChange={(e) => setCardColor(e.target.value)}
+                    className="flex-1 p-2 border rounded"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-          
-         
-        </div>
-      </div>
 
           {/* Editor Content */}
           <div className="my-8">
@@ -155,9 +198,9 @@ export default function Editor() {
           <div className="flex justify-end">
             <button
               onClick={handleSubmit}
-              disabled={isSubmitting || !title}
+              disabled={isSubmitting || !title || !category}
               className={`px-6 py-3 rounded text-white font-medium ${
-                isSubmitting || !title
+                isSubmitting || !title || !category
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700"
               }`}
